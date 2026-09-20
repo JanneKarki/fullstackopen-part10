@@ -13,13 +13,25 @@ const styles = StyleSheet.create({
   },
 });
 
-const AppBarTab = ({ children, to }) => {
+const AppBarTab = ({ children, to, onPress }) => {
+  const content = (
+    <Text fontWeight="bold" fontSize="subheading" style={styles.text}>
+      {children}
+    </Text>
+  );
+
+  if (to) {
+    return (
+      <Link to={to} component={Pressable} style={styles.tab}>
+        {content}
+      </Link>
+    );
+  }
+
   return (
-    <Link to={to} component={Pressable} style={styles.tab}>
-      <Text fontWeight="bold" fontSize="subheading" style={styles.text}>
-        {children}
-      </Text>
-    </Link>
+    <Pressable style={styles.tab} onPress={onPress}>
+      {content}
+    </Pressable>
   );
 };
 
