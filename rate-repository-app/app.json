@@ -24,6 +24,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2085eb2c-5db1-40cd-89af-b142dcb950a5"
+      }
+    },
+    "owner": "jkarki",
+    "runtimeVersion": "exposdk:55.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/2085eb2c-5db1-40cd-89af-b142dcb950a5"
     }
   }
 }

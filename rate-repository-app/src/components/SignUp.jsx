@@ -5,6 +5,7 @@ import * as yup from 'yup';
 
 import Text from './Text';
 import useSignIn from '../hooks/useSignIn';
+import useSignUp from '../hooks/useSignUp';
 import theme from '../theme';
 
 const styles = StyleSheet.create({
@@ -41,56 +42,85 @@ const styles = StyleSheet.create({
 const initialValues = {
   username: '',
   password: '',
+  passwordConfirmation: '',
 };
 
 const validationSchema = yup.object().shape({
-  username: yup.string().required('Username is required'),
-  password: yup.string().required('Password is required'),
+  username: yup
+    .string()
+    .min(5, 'Username must be at least 5 characters long')
+    .max(30, 'Username must be at most 30 characters long')
+    .required('Username is required'),
+  password: yup
+    .string()
+    .min(5, 'Password must be at least 5 characters long')
+    .max(50, 'Password must be at most 50 characters long')
+    .required('Password is required'),
+  passwordConfirmation: yup
+    .string()
+    .oneOf([yup.ref('password')], 'Passwords must match')
+    .required('Password confirmation is required'),
 });
 
-export const SignInContainer = ({ onSubmit }) => {
+export const SignUpContainer = ({ onSubmit }) => {
   const formik = useFormik({
     initialValues,
     validationSchema,
     onSubmit,
   });
 
-  const showUsernameError = formik.touched.username && formik.errors.username;
-  const showPasswordError = formik.touched.password && formik.errors.password;
+  const showError = (field) => formik.touched[field] && formik.errors[field];
 
   return (
     <View style={styles.container}>
       <TextInput
-        style={[styles.input, showUsernameError && styles.inputError]}
+        style={[styles.input, showError('username') && styles.inputError]}
         placeholder="Username"
         value={formik.values.username}
         onChangeText={formik.handleChange('username')}
         onBlur={formik.handleBlur('username')}
       />
-      {showUsernameError && (
+      {showError('username') && (
         <Text style={styles.errorText}>{formik.errors.username}</Text>
       )}
       <TextInput
-        style={[styles.input, showPasswordError && styles.inputError]}
+        style={[styles.input, showError('password') && styles.inputError]}
         placeholder="Password"
         value={formik.values.password}
         onChangeText={formik.handleChange('password')}
         onBlur={formik.handleBlur('password')}
         secureTextEntry
       />
-      {showPasswordError && (
+      {showError('password') && (
         <Text style={styles.errorText}>{formik.errors.password}</Text>
+      )}
+      <TextInput
+        style={[
+          styles.input,
+          showError('passwordConfirmation') && styles.inputError,
+        ]}
+        placeholder="Password confirmation"
+        value={formik.values.passwordConfirmation}
+        onChangeText={formik.handleChange('passwordConfirmation')}
+        onBlur={formik.handleBlur('passwordConfirmation')}
+        secureTextEntry
+      />
+      {showError('passwordConfirmation') && (
+        <Text style={styles.errorText}>
+          {formik.errors.passwordConfirmation}
+        </Text>
       )}
       <Pressable style={styles.button} onPress={formik.handleSubmit}>
         <Text fontWeight="bold" fontSize="subheading" style={styles.buttonText}>
-          Sign in
+          Sign up
         </Text>
       </Pressable>
     </View>
   );
 };
 
-const SignIn = () => {
+const SignUp = () => {
+  const [signUp] = useSignUp();
   const [signIn] = useSignIn();
   const navigate = useNavigate();
 
@@ -98,6 +128,7 @@ const SignIn = () => {
     const { username, password } = values;
 
     try {
+      await signUp({ username, password });
       await signIn({ username, password });
       navigate('/');
     } catch (e) {
@@ -105,7 +136,7 @@ const SignIn = () => {
     }
   };
 
-  return <SignInContainer onSubmit={onSubmit} />;
+  return <SignUpContainer onSubmit={onSubmit} />;
 };
 
-export default SignIn;
+export default SignUp;
